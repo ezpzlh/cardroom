@@ -78,11 +78,11 @@ function init(){
   render();
 }
 function render(){
-  var h='<div class="header">棋牌室管理</div><div class="tabs">';
-  h+='<div class="tab '+(tab==="players"?"on":"")+'" onclick="switchTab(\'players\')">玩家管理</div>';
-  h+='<div class="tab '+(tab==="assign"?"on":"")+'" onclick="switchTab(\'assign\')">自动分桌</div>';
-  h+='<div class="tab '+(tab==="today"?"on":"")+'" onclick="switchTab(\'today\')">今日桌局</div>';
-  h+='<div class="tab '+(tab==="data"?"on":"")+'" onclick="switchTab(\'data\')">数据记录</div>';
+  var h='<div class="header" onclick="switchTab(\'players\')">棋牌室管理</div><div class="tabs">';
+  h+='<div class="tab '+(tab==="players"?"on":"")+'" data-tab="players">玩家管理</div>';
+  h+='<div class="tab '+(tab==="assign"?"on":"")+'" data-tab="assign">自动分桌</div>';
+  h+='<div class="tab '+(tab==="today"?"on":"")+'" data-tab="today">今日桌局</div>';
+  h+='<div class="tab '+(tab==="data"?"on":"")+'" data-tab="data">数据记录</div>';
   h+="</div><div class=\"content\">";
   if(tab==="players")h+=renderPlayers();
   else if(tab==="assign")h+=renderAssign();
@@ -93,6 +93,8 @@ function render(){
   if(showTodayEdit)h+=renderTodayEditModal();
   if(showExPicker)h+=renderExPicker();
   document.getElementById("app").innerHTML=h;
+  var els=document.querySelectorAll(".tab");
+  for(var i=0;i<els.length;i++){(function(t){els[i].addEventListener("click",function(){switchTab(t)})})(els[i].dataset.tab)}
 }
 function switchTab(t){tab=t;render()}
 
