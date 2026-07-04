@@ -78,10 +78,11 @@ function init(){
   render();
 }
 function render(){
-  var tabs=["players","assign","today","data"];
-  var labels=["玩家管理","自动分桌","今日桌局","数据记录"];
   var h='<div class="header">棋牌室管理</div><div class="tabs">';
-  for(var i=0;i<tabs.length;i++){h+='<div class="tab '+(tab===tabs[i]?"on":"")+'" onclick="switchTab(\'"+tabs[i]+"\')">'+labels[i]+"</div>"}
+  h+='<div class="tab '+(tab==="players"?"on":"")+'" onclick="switchTab(\'players\')">玩家管理</div>';
+  h+='<div class="tab '+(tab==="assign"?"on":"")+'" onclick="switchTab(\'assign\')">自动分桌</div>';
+  h+='<div class="tab '+(tab==="today"?"on":"")+'" onclick="switchTab(\'today\')">今日桌局</div>';
+  h+='<div class="tab '+(tab==="data"?"on":"")+'" onclick="switchTab(\'data\')">数据记录</div>';
   h+="</div><div class=\"content\">";
   if(tab==="players")h+=renderPlayers();
   else if(tab==="assign")h+=renderAssign();
