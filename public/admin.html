@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="zh"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>棋牌室管理 · 后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F5F5;color:#333;font-size:15px;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#FFF}
+.header{background:#333;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.header .ttl{color:#FFF;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.header .usr{color:#CCC;font-size:12px;text-align:right;line-height:1.4}
+.header .logout{color:#FFCDD2;font-size:11px;cursor:pointer;text-decoration:underline;margin-left:8px}
+.tabs{display:flex;background:#FFF;position:sticky;top:0;z-index:10;border-bottom:1px solid #EEE}
+.tab{flex:1;text-align:center;padding:14px 8px;font-size:14px;color:#999;cursor:pointer}.tab.on{color:#333;font-weight:700;border-bottom:2px solid #333;margin-bottom:-1px}
+.content{flex:1;padding:16px;overflow-y:auto;padding-bottom:80px}
+.bar{display:flex;justify-content:space-between;padding:4px 0 12px;font-size:13px;color:#999}
+.lk{color:#333;font-weight:600;cursor:pointer;text-decoration:underline}.dg{color:#E53935}
+.eb{display:flex;gap:16px;padding:10px 12px;background:#FFF5F5;border-radius:8px;font-size:13px;margin-bottom:8px;border:1px solid #FFE0E0}
+.row{display:flex;align-items:center;gap:14px;padding:16px 14px;background:#FAFAFA;border-radius:10px;margin-bottom:8px;cursor:pointer;border:1px solid #F0F0F0}.row.sel{background:#FFF8E1;border-color:#FFB300}
+.if{flex:1;min-width:0}.nm{font-size:16px;font-weight:600}.ph{font-size:13px;color:#999}.ex{font-size:12px;color:#E53935}
+.add-btn{text-align:center;padding:16px;border:2px dashed #DDD;border-radius:10px;color:#999;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100}
+.modal{position:fixed;top:8%;left:20px;right:20px;background:#FFF;border-radius:16px;padding:28px;z-index:101;max-height:82vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.mt{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px}
+.inp{width:100%;height:44px;background:#F5F5F5;border:1px solid #E0E0E0;border-radius:8px;padding:0 14px;color:#333;font-size:15px;margin-bottom:14px}.inp:focus{border-color:#333;outline:none}
+.lb{font-size:13px;color:#999;margin:12px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{padding:8px 16px;border-radius:20px;font-size:13px;border:1px solid #E0E0E0;color:#666;cursor:pointer}.chip.on{background:#333;color:#FFF;border-color:#333}
+.btns{display:flex;gap:10px;margin-top:18px}.btns button{flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none}
+.btn-save{background:#333;color:#FFF}.btn-cancel{background:#F5F5F5;color:#666}.btn-del{background:transparent;color:#E53935;border:1px solid #E53935}
+.btn-add-ex{text-align:center;padding:12px;border:2px dashed #DDD;border-radius:10px;color:#999;font-size:14px;font-weight:600;cursor:pointer;margin:10px 0}
+.tc{background:#FFF;border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04)}.tc.gd{border-left:4px solid #43A047}
+.tps{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.tp{padding:8px 16px;border-radius:20px;background:#F5F5F5;display:inline-flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}.tp .x{color:#999;font-size:14px;margin-left:2px}.tp.add{border:2px dashed #DDD;background:transparent;color:#999;font-weight:600}
+.tdot{width:10px;height:10px;border-radius:50%}
+.acs{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.bs{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#F5F5F5;color:#666}
+.bs.go{background:#333;color:#FFF}.bs.ok{background:#E8F5E9;color:#2E7D32}.bs.del{background:#FFF5F5;color:#E53935}
+.btn-big{width:100%;padding:16px;background:#333;color:#FFF;border-radius:10px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;border:none;margin-top:8px}
+.ttl{font-size:17px;font-weight:700;margin-bottom:14px}
+.tc2{background:#FFF;border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.th{font-size:14px;margin-bottom:6px}.ed{color:#333;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
+.mb{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:18px;font-size:18px;font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:16px}
+.ch{font-size:12px;color:#999;padding:10px 0;font-weight:600}
+.cd{padding:14px 2px;border-radius:8px;background:#FAFAFA;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent}.cd.emp{background:transparent;cursor:default}
+.cd.has{background:#FFF;border:1px solid #E0E0E0}.cd.sel{background:#333;border-color:#333}
+.cd .d{font-size:14px;font-weight:600}.cd.sel .d{color:#FFF}.cd .n{font-size:11px;color:#E53935;font-weight:700}.cd.sel .n{color:#FFCDD2}
+.dt{background:#FFF;border-radius:12px;padding:20px;margin-top:14px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.dh{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #EEE}
+.df{padding:12px 0;border-bottom:1px solid #F0F0F0;cursor:pointer;display:flex;justify-content:space-between;font-size:14px}
+.dt-tables{padding:10px 0;display:flex;flex-direction:column;gap:6px}
+.dt-tb{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tp-tag{padding:5px 12px;border-radius:10px;background:#F5F5F5;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.dt-tag{font-size:11px;color:#999;margin-left:6px;font-weight:600}
+.sr-item{padding:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F0F0F0;font-size:15px;cursor:pointer}
+.flex{display:flex;justify-content:space-between;align-items:center}
+.ti-inp{width:105px;background:#F5F5F5;color:#333;border:1px solid #E0E0E0;border-radius:6px;padding:5px 6px;font-size:13px}
+.loading{text-align:center;padding:40px;color:#999;font-size:15px}
+</style></head><body><div class="app" id="app"></div>
+<script>
+var COLORS=["#E94560","#4A90D9","#0FAA6B","#FF9500","#AF52DE","#FFCC00","#5AC8FA","#FF6B6B"];
+var players=[],records=[],assignCache=null,tab="players";
+var editMode=false,selectedMap={},editPlayer=null,exOptions=[],exNames={},showExPicker=false;
+var tables=[],confirmedMap={};
+var todayTables=[],showTodayEdit=false,todayEditing=null;
+var dataYear=new Date().getFullYear(),dataMonth=new Date().getMonth()+1,selectedDay=null,dayDetail=null,expandedFields={};
+var token=null,currentUser=null;
+
+// Auth helpers
+function getToken(){
+  if(token)return token;
+  token=localStorage.getItem('token');
+  var u=localStorage.getItem('user');
+  if(u)currentUser=JSON.parse(u);
+  return token;
+}
+function api(path,opts){
+  opts=opts||{};
+  var h=opts.headers||{};
+  h['Authorization']='Bearer '+getToken();
+  return fetch(path,{method:opts.method||'GET',headers:h,body:opts.body}).then(function(r){
+    if(r.status===401){localStorage.clear();window.location.href='/login.html';throw new Error('unauthorized')}
+    return r.json().catch(function(){throw new Error('响应解析失败')});
+  });
+}
+function logout(){localStorage.clear();window.location.href='/login.html'}
+
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+
+async function init(){
+  var t=getToken();
+  if(!t){window.location.href='/login.html';return}
+  // Load current user
+  try{
+    var me=await api('/api/auth/me');
+    if(me.user){currentUser=me.user;localStorage.setItem('user',JSON.stringify(me.user))}
+  }catch(e){}
+  if(!currentUser||currentUser.role!=='admin'){
+    alert('仅管理员可访问此页面');logout();return;
+  }
+  await loadPlayers();
+  await loadRecords();
+  if(!tables.length)addEmptyTable();
+  render();
+}
+
+async function loadPlayers(){
+  try{var r=await api('/api/players');players=r.players||[]}catch(e){}
+}
+async function loadRecords(){
+  try{var r=await api('/api/records?year='+dataYear+'&month='+dataMonth);records=r.records||[]}catch(e){}
+}
+
+function render(){
+  var h='<div class="header"><span class="ttl" onclick="switchTab(\'players\')">🀄 棋牌室管理</span><span class="usr">'+(currentUser?currentUser.name:'')+'<br><span class="logout" onclick="logout()">退出</span></span></div><div class="tabs">';
+  h+='<div class="tab '+(tab==="players"?"on":"")+'" data-tab="players">玩家管理</div>';
+  h+='<div class="tab '+(tab==="assign"?"on":"")+'" data-tab="assign">自动分桌</div>';
+  h+='<div class="tab '+(tab==="today"?"on":"")+'" data-tab="today">今日桌局</div>';
+  h+='<div class="tab '+(tab==="data"?"on":"")+'" data-tab="data">数据记录</div>';
+  h+="</div><div class=\"content\">";
+  if(tab==="players")h+=renderPlayers();
+  else if(tab==="assign")h+=renderAssign();
+  else if(tab==="today")h+=renderToday();
+  else h+=renderData();
+  h+="</div>";
+  if(editPlayer)h+=renderPlayerModal();
+  if(showTodayEdit)h+=renderTodayEditModal();
+  if(showExPicker)h+=renderExPicker();
+  document.getElementById("app").innerHTML=h;
+  var els=document.querySelectorAll(".tab");
+  for(var i=0;i<els.length;i++){(function(t){els[i].addEventListener("click",function(){switchTab(t)})})(els[i].dataset.tab)}
+}
+function switchTab(t){tab=t;render()}
+
+// PLAYERS
+function renderPlayers(){
+  var h='<div class="bar"><span>'+players.length+'位玩家</span><span class="lk" onclick="toggleEditMode()">'+(editMode?"完成":"编辑")+"</span></div>";
+  if(editMode)h+='<div class="eb"><span>已选'+Object.keys(selectedMap).length+'人</span><span class="lk" onclick="selectAll()">'+(Object.keys(selectedMap).length===players.length?"取消全选":"全选")+'</span><span class="lk dg" onclick="deleteSelected()">删除选中</span></div>';
+  h+='<div class="list">';
+  players.forEach(function(p){h+='<div class="row '+(selectedMap[p.id]?"sel":"")+'" onclick="'+(editMode?"toggleSelect(\'"+p.id+"\')":"openEditPlayer(\'"+p.id+"\')")+'"><div class="if"><div class="nm">'+p.name+"</div><div class=\"ph\">"+(p.phone||"未填")+"</div></div>"+(p.exclusions&&p.exclusions.length?'<span class="ex">不跟:'+p.exclusions.length+"人</span>":"")+"</div>"});
+  h+='<div class="add-btn" onclick="addNewPlayer()">＋ 添加玩家</div></div>';
+  return h;
+}
+function toggleEditMode(){editMode=!editMode;selectedMap={};render()}
+function toggleSelect(id){if(selectedMap[id])delete selectedMap[id];else selectedMap[id]=true;render()}
+function selectAll(){if(Object.keys(selectedMap).length===players.length)selectedMap={};else players.forEach(function(p){selectedMap[p.id]=true});render()}
+async function deleteSelected(){var ids=Object.keys(selectedMap);if(!ids.length)return;if(!confirm("删除"+ids.length+"位玩家？"))return;for(var i=0;i<ids.length;i++){try{await api('/api/players/'+ids[i],{method:'DELETE'})}catch(e){}}editMode=false;selectedMap={};await loadPlayers();render()}
+function addNewPlayer(){editPlayer={id:"_new",name:"",phone:"",username:"",password:"",exclusions:[],color:COLORS[Math.floor(Math.random()*COLORS.length)]};exOptions=players.map(function(p){return{id:p.id,name:p.name}});exNames={};showExPicker=false;render()}
+function openEditPlayer(id){var p=players.find(function(x){return x.id===id});if(!p)return;exNames={};(p.exclusions||[]).forEach(function(eid){var pp=players.find(function(x){return x.id===eid});if(pp)exNames[eid]=pp.name});editPlayer=JSON.parse(JSON.stringify(p));exOptions=players.filter(function(x){return x.id!==p.id}).map(function(x){return{id:x.id,name:x.name}});showExPicker=false;render()}
+function closePlayerModal(){editPlayer=null;render()}
+async function savePlayer(){var p=editPlayer;if(!p||!p.name.trim())return;if(p.id==="_new"){if(!p.username||!p.username.trim()){alert('请输入用户名');return}if(!p.password||p.password.length<4){alert('密码至少4位');return}try{await api('/api/players',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:p.name,phone:p.phone||"",username:p.username,password:p.password,exclusions:p.exclusions||[]})});await loadPlayers()}catch(e){alert(e.message);return}}else{try{await api('/api/players/'+p.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:p.name,phone:p.phone||"",exclusions:p.exclusions||[]})});await loadPlayers()}catch(e){alert(e.message);return}}closePlayerModal()}
+async function deletePlayer(){if(!confirm("确定删除？"))return;try{await api('/api/players/'+editPlayer.id,{method:'DELETE'});await loadPlayers()}catch(e){alert(e.message)}closePlayerModal()}
+function toggleEx(eid){var ex=(editPlayer.exclusions||[]).slice();var i=ex.indexOf(eid);if(i>=0){ex.splice(i,1);delete exNames[eid]}else{ex.push(eid);var pp=players.find(function(x){return x.id===eid});if(pp)exNames[eid]=pp.name}editPlayer.exclusions=ex;showExPicker=false;render()}
+function removeEx(eid){editPlayer.exclusions=(editPlayer.exclusions||[]).filter(function(e){return e!==eid});delete exNames[eid];render()}
+function renderPlayerModal(){
+  var isNew=editPlayer.id==="_new";
+  var h='<div class="mask" onclick="closePlayerModal()"></div><div class="modal"><div class="mt">'+(isNew?"添加":"编辑")+'玩家</div>';
+  if(isNew){
+    h+='<input class="inp" placeholder="登录用户名" value="'+(editPlayer.username||"")+'" oninput="editPlayer.username=this.value"/>';
+    h+='<input class="inp" type="password" placeholder="登录密码（至少4位）" value="'+(editPlayer.password||"")+'" oninput="editPlayer.password=this.value"/>';
+    h+='<div style="font-size:12px;color:#999;margin:-8px 0 10px">请记下用户名和密码，告知玩家用于登录</div>';
+  }
+  h+='<input class="inp" placeholder="姓名" value="'+editPlayer.name+'" oninput="editPlayer.name=this.value"/>'+
+    '<input class="inp" placeholder="手机号" value="'+(editPlayer.phone||"")+'" oninput="editPlayer.phone=this.value"/>'+
+    '<div class="lb">不跟谁一桌（已选'+(editPlayer.exclusions||[]).length+'人）</div>'+
+    '<div class="chips">'+(editPlayer.exclusions||[]).map(function(eid){return'<span class="chip on">'+(exNames[eid]||eid)+'<span style="color:#E53935;margin-left:4px;cursor:pointer" onclick="event.stopPropagation();removeEx(\''+eid+'\')">x</span></span>'}).join("")+'</div>'+
+    '<div class="btn-add-ex" onclick="showExPicker=true;render()">＋ 添加排除玩家</div>'+
+    '<div class="btns">'+(!isNew?'<button class="btn-del" onclick="deletePlayer()">删除</button>':"")+'<button class="btn-cancel" onclick="closePlayerModal()">取消</button><button class="btn-save" onclick="savePlayer()">保存</button></div></div>';
+  return h;
+}
+function renderExPicker(){
+  return'<div class="mask" onclick="showExPicker=false;render()"></div><div class="modal"><div class="mt">选择不跟谁一桌</div>'+
+    '<div style="max-height:300px;overflow-y:auto">'+exOptions.map(function(x){return'<div class="sr-item" onclick="toggleEx(\''+x.id+'\')">'+x.name+((editPlayer.exclusions||[]).indexOf(x.id)>=0?'<span style="color:#E53935;margin-left:auto">✓</span>':"")+'</div>'}).join("")+'</div>'+
+    '<div class="btns"><button class="btn-save" onclick="showExPicker=false;render()">完成</button></div></div>';
+}
+
+// ASSIGN
+function addEmptyTable(){tables.push({players:[],tag:"",timeRange:"12:00-18:00",_key:"t"+Date.now(),_locked:new Set()});cacheAssign()}
+function cacheAssign(){assignCache={tables:tables,confirmedMap:confirmedMap}}
+function updateTimeRange(key,val,which){var t=tables.find(function(x){return x._key===key});if(!t)return;var p=(t.timeRange||"12:00-18:00").split("-");p[which==="start"?0:1]=val;t.timeRange=p.join("-");cacheAssign();render()}
+function toggleTableTag(key,tag){var t=tables.find(function(x){return x._key===key});if(!t)return;t.tag=t.tag===tag?"":tag;cacheAssign();render()}
+function openAddPlayer(key){window._addKey=key;render()}
+function closeAddModal(){window._addKey=null;render()}
+function addPlayerToTable(pid,key){var t=tables.find(function(x){return x._key===key});if(!t||t.players.length>=4)return;var p=players.find(function(x){return x.id===pid});if(!p)return;t.players.push({id:p.id,name:p.name,color:p.color});t._locked.add(p.id);if(t.players.length>=4)window._addKey=null;cacheAssign();render()}
+function getFiltered(key){var t=tables.find(function(x){return x._key===key});if(!t)return[];var kw=(document.getElementById("searchInput")||{}).value||"";var used=new Set();tables.forEach(function(tt){if(tt._key!==key)tt.players.forEach(function(p){used.add(p.id)})});return players.filter(function(p){return!used.has(p.id)&&!t.players.some(function(x){return x.id===p.id})&&(!kw||p.name.indexOf(kw)>=0)&&!t.players.some(function(tp){return(tp.exclusions||[]).indexOf(p.id)>=0||(p.exclusions||[]).indexOf(tp.id)>=0})})}
+function removePlayer(pid,tkey){var t=tables.find(function(x){return x._key===tkey});if(t){t.players=t.players.filter(function(p){return p.id!==pid});t._locked.delete(pid);cacheAssign();render()}}
+function removeTable(key){tables=tables.filter(function(x){return x._key!==key});delete confirmedMap[key];cacheAssign();render()}
+async function onConfirmTable(key){var t=tables.find(function(x){return x._key===key});if(!t||t.players.length!==4)return;if(confirmedMap[key]){delete confirmedMap[key];tables=tables.filter(function(x){return x._key!==key})}else{if(!t.timeRange){alert("请先选时间段");return}if(!t.tag){alert("请先选直播/线下");return}confirmedMap[key]=true;await doconfirm(key,t);tables=tables.filter(function(x){return x._key!==key})}cacheAssign();render()}
+async function doconfirm(key,t){var td=today();var reqBody={date:td,time_range:t.timeRange,tag:t.tag||"",players:t.players};try{await api('/api/tables',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reqBody)});await loadRecords()}catch(e){alert('保存失败: '+(e.message||'网络错误'));delete confirmedMap[key];tables.push(t);return}}
+async function loadTodayTables(){var td=today();try{var r=await api('/api/tables?date='+td);todayTables=r.tables||[]}catch(e){todayTables=[]}}
+function renderToday(){var h='<div class="ttl">今日桌局 · 共'+todayTables.length+"桌</div>";if(!todayTables.length)h+='<div style="text-align:center;padding:40px;color:#666">暂无确认桌局</div>';todayTables.forEach(function(t){var tag=t.tag||"";h+='<div class="tc2"><div class="flex" style="margin-bottom:6px"><span class="th">'+t.time_range+(tag?" · "+tag:"")+'</span><span class="ed" onclick="editTodayTable(\''+t.id+'\')">编辑</span></div><div class="tps">'+t.players.map(function(p){return'<span class="tp"><span class="tdot" style="background:'+(p.color||"#888")+'"></span>'+p.name+"</span>"}).join("")+"</div></div>"});return h}
+async function editTodayTable(id){var t=todayTables.find(function(x){return x.id===id});if(!t)return;window._editTableId=id;window._editTR=t.time_range||"";window._editTag=t.tag||"";window._editPlayers=t.players.slice();var used=new Set(t.players.map(function(p){return p.id}));window._availPlayers=players.filter(function(p){return!used.has(p.id)});showTodayEdit=true;render()}
+function closeTodayEdit(){showTodayEdit=false;render()}
+function removeEditPlayer(pid){var ps=window._editPlayers.filter(function(p){return p.id!==pid});var r=window._editPlayers.find(function(p){return p.id===pid});if(r)window._availPlayers.push({id:r.id,name:r.name,color:r.color});window._editPlayers=ps;render()}
+function addEditPlayer(pid){var p=window._availPlayers.find(function(x){return x.id===pid});if(!p)return;window._editPlayers.push({id:p.id,name:p.name,color:p.color});window._availPlayers=window._availPlayers.filter(function(x){return x.id!==pid});render()}
+async function saveTodayEdit(){
+  if(!window._editTR){alert("请选时间段");return}if(!window._editTag){alert("请选标签");return}
+  try{
+    await api('/api/tables/'+window._editTableId,{method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({time_range:window._editTR,tag:window._editTag,players:window._editPlayers})});
+    await loadRecords();await loadTodayTables();showTodayEdit=false;render();
+  }catch(e){alert('保存失败: '+(e.message||'网络错误'))}
+}
+async function delEditTable(){
+  if(!confirm("确定删除？"))return;
+  try{await api('/api/tables/'+window._editTableId,{method:'DELETE'});await loadRecords();await loadTodayTables();showTodayEdit=false;render()}catch(e){alert('删除失败: '+(e.message||'网络错误'))}
+}
+function renderTodayEditModal(){
+  var tr=window._editTR||"";var parts=tr.split("-");
+  return'<div class="mask" onclick="closeTodayEdit()"></div><div class="modal"><div class="mt">编辑牌桌</div>'+
+    '<div class="lb">时间段</div><div style="display:flex;gap:12px;align-items:center"><input type="time" value="'+(parts[0]||"12:00")+'" onchange="window._editTR=this.value+\'-\'+(window._editTR.split(\'-\')[1]||\'18:00\');render()" class="ti-inp" style="width:120px"><span>-</span><input type="time" value="'+(parts[1]||"18:00")+'" onchange="window._editTR=(window._editTR.split(\'-\')[0]||\'12:00\')+\'-\'+this.value;render()" class="ti-inp" style="width:120px"></div>'+
+    '<div class="lb">标签</div><div class="chips"><span class="chip '+(window._editTag==="直播"?"on":"")+'" onclick="window._editTag=window._editTag===\'直播\'?\'\':\'直播\';render()">直播</span><span class="chip '+(window._editTag==="线下"?"on":"")+'" onclick="window._editTag=window._editTag===\'线下\'?\'\':\'线下\';render()">线下</span></div>'+
+    '<div class="lb">玩家（点击移除）</div><div class="tps">'+(window._editPlayers||[]).map(function(p){return'<span class="tp" onclick="removeEditPlayer(\''+p.id+'\')"><span class="tdot" style="background:'+p.color+'"></span>'+p.name+" x</span>"}).join("")+'</div>'+
+    '<div class="lb">添加玩家</div><div style="max-height:150px;overflow-y:auto;background:#F5F5F5;border-radius:8px;padding:6px">'+(window._availPlayers||[]).map(function(p){return'<div class="sr-item" onclick="addEditPlayer(\''+p.id+'\')"><span class="tdot" style="background:'+p.color+'"></span>'+p.name+"</div>"}).join("")+'</div>'+
+    '<div class="btns"><button class="btn-del" onclick="delEditTable()">删除</button><button class="btn-save" onclick="saveTodayEdit()">保存</button></div></div>';
+}
+
+// AUTO ASSIGN (runs locally using loaded player data)
+function autoAssignTable(key){var ti=tables.findIndex(function(t){return t._key===key});if(ti<0)return;var table=tables[ti];if(!table._locked)table._locked=new Set();var locked=table.players.filter(function(p){return table._locked.has(p.id)});var used=new Set();tables.forEach(function(t,i){if(i!==ti)t.players.forEach(function(p){used.add(p.id)})});var avail=players.filter(function(p){return!used.has(p.id)&&!locked.some(function(lp){return lp.id===p.id})&&!locked.some(function(lp){return(lp.exclusions||[]).indexOf(p.id)>=0||(p.exclusions||[]).indexOf(lp.id)>=0})});var best=locked.slice();for(var a=0;a<30;a++){var pool=avail.slice().sort(function(){return Math.random()-.5}),fill=locked.slice();for(var ci=0;ci<pool.length;ci++){var c=pool[ci];if(fill.length>=4)break;if(!fill.some(function(fp){return(fp.exclusions||[]).indexOf(c.id)>=0||(c.exclusions||[]).indexOf(fp.id)>=0}))fill.push({id:c.id,name:c.name,color:c.color})}if(fill.length>best.length)best=fill}tables[ti]=Object.assign({},table,{players:best,_key:best.map(function(p){return p.id}).sort().join(","),_locked:table._locked});cacheAssign();render()}
+function renderAssign(){
+  if(!tables.length)addEmptyTable();
+  var h='<div class="ttl">牌桌 · '+tables.length+"桌</div>";
+  tables.forEach(function(t){
+    var tr=t.timeRange||"12:00-18:00";var parts=tr.split("-");var st=parts[0]||"12:00",et=parts[1]||"18:00";
+    h+='<div class="tc '+(t.players.length===4?"gd":"")+'"><div class="tps">';
+    t.players.forEach(function(p){h+='<div class="tp" onclick="removePlayer(\''+p.id+'\',\''+t._key+'\')"><div class="tdot" style="background:'+p.color+'"></div>'+p.name+'<span class="x">x</span></div>'});
+    if(t.players.length<4)h+='<div class="tp add" onclick="openAddPlayer(\''+t._key+'\')">＋ 添加玩家</div>';
+    h+="</div>";
+    h+='<div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:13px;color:#999;min-width:36px">'+t.players.length+'/4</span><input type="time" value="'+st+'" onchange="updateTimeRange(\''+t._key+'\',this.value,\'start\')" class="ti-inp"><span style="color:#999">-</span><input type="time" value="'+et+'" onchange="updateTimeRange(\''+t._key+'\',this.value,\'end\')" class="ti-inp"></div>';
+    h+='<div style="display:flex;gap:8px;margin:8px 0"><button class="bs" style="'+(t.tag==="直播"?"background:#333;color:#FFF;":"")+'font-size:13px" onclick="toggleTableTag(\''+t._key+'\',\'直播\')">直播</button><button class="bs" style="'+(t.tag==="线下"?"background:#333;color:#FFF;":"")+'font-size:13px" onclick="toggleTableTag(\''+t._key+'\',\'线下\')">线下</button></div>';
+    h+='<div class="acs">';
+    if(t.players.length===4)h+='<button class="bs '+(confirmedMap[t._key]?"ok":"go")+'" onclick="onConfirmTable(\''+t._key+'\')">'+(confirmedMap[t._key]?"✓已计入":"确认计入")+"</button>";
+    h+='<button class="bs del" onclick="removeTable(\''+t._key+'\')">删除</button><button class="bs go" onclick="autoAssignTable(\''+t._key+'\')">自动分桌</button></div></div>';
+  });
+  h+='<button class="btn-big" onclick="addEmptyTable();render()">＋ 添加牌桌</button>';
+  if(window._addKey){var filtered=getFiltered(window._addKey);h+='<div class="mask" onclick="closeAddModal()"></div><div class="modal"><div class="mt">添加玩家</div><input class="inp" placeholder="搜索姓名" id="searchInput" oninput="render()" autofocus/><div style="max-height:250px;overflow-y:auto">'+filtered.map(function(p){return'<div class="sr-item" onclick="addPlayerToTable(\''+p.id+'\',\''+window._addKey+'\')"><div class="tdot" style="background:'+p.color+'"></div>'+p.name+"</div>"}).join("")+(filtered.length?"":'<div style="text-align:center;padding:20px;color:#666">无可用玩家</div>')+'</div><div class="btns"><button class="btn-cancel" onclick="closeAddModal()">关闭</button></div></div>'}
+  return h;
+}
+
+// DATA
+function prevMonth(){if(dataMonth===1){dataMonth=12;dataYear--}else dataMonth--;selectedDay=null;dayDetail=null;loadRecords().then(function(){render()})}
+function nextMonth(){if(dataMonth===12){dataMonth=1;dataYear++}else dataMonth++;selectedDay=null;dayDetail=null;loadRecords().then(function(){render()})}
+async function selDay(ds){if(selectedDay===ds){selectedDay=null;dayDetail=null;render();return}selectedDay=ds;try{var r1=await api('/api/records?year='+dataYear+'&month='+dataMonth);var dayRecs=(r1.records||[]).filter(function(r){return r.date===ds});var r2=await api('/api/tables?date='+ds);var dayTables=r2.tables||[];var detail=[];dayRecs.forEach(function(rec){var tables=dayTables.filter(function(t){return t.time_range===rec.time_range});detail.push({timeRange:rec.time_range,count:rec.count,live:rec.live_count||0,offline:rec.offline_count||0,tables:tables})});dayDetail=detail}catch(e){dayDetail=[]}expandedFields={};render()}
+function toggleField(key){expandedFields[key]=!expandedFields[key];render()}
+function renderData(){
+  var dm={};records.forEach(function(r){dm[r.date]=r.count||0});
+  var dim=new Date(dataYear,dataMonth,0).getDate(),fd=new Date(dataYear,dataMonth-1,1).getDay();
+  var h='<div class="mb"><span onclick="prevMonth()" style="cursor:pointer">◀</span><span>'+dataYear+"年"+dataMonth+'月</span><span onclick="nextMonth()" style="cursor:pointer">▶</span></div><div class="cal">';
+  "日一二三四五六".split("").forEach(function(d){h+='<div class="ch">'+d+"</div>"});
+  for(var i=0;i<fd;i++)h+='<div class="cd emp"></div>';
+  for(var d=1;d<=dim;d++){var ds=dataYear+"-"+String(dataMonth).padStart(2,"0")+"-"+String(d).padStart(2,"0");var c=dm[ds]||0;h+='<div class="cd '+(c?"has":"")+" "+(selectedDay===ds?"sel":"")+'" onclick="selDay(\''+ds+'\')"><span class="d">'+d+"</span>"+(c?'<span class="n">'+c+"</span>":"")+"</div>"}
+  h+="</div>";
+  if(selectedDay&&dayDetail&&dayDetail.length){
+    h+='<div class="dt"><div class="dh">'+selectedDay+"</div>";
+    dayDetail.forEach(function(f){h+='<div class="df" onclick="toggleField(\''+f.timeRange+'\')"><span>'+f.timeRange+" · "+f.count+"桌"+(f.live>0?" 直播("+f.live+")":"")+(f.offline>0?" 线下("+f.offline+")":"")+"</span><span>"+(expandedFields[f.timeRange]?"▲":"▼")+"</span></div>";
+      if(expandedFields[f.timeRange]){h+='<div class="dt-tables">';f.tables.forEach(function(t){var tp=t.players||[];h+='<div class="dt-tb">'+tp.map(function(p){return'<span class="tp-tag"><span class="tdot" style="background:'+(p.color||"#888")+'"></span>'+p.name+"</span>"}).join("")+'<span class="dt-tag">'+(t.tag||"")+"</span></div>"});h+="</div>"}});
+    h+="</div>";
+  }else if(selectedDay)h+='<div style="text-align:center;padding:30px;color:#666">当天无记录</div>';
+  return h;
+}
+
+// Async tab switching
+var _origSwitchTab=switchTab;
+switchTab=async function(t){
+  tab=t;
+  if(t==="today")await loadTodayTables();
+  if(t==="data")await loadRecords();
+  if(t==="players")await loadPlayers();
+  render();
+};
+
+init().catch(function(e){
+  console.error('Init error:',e);
+  var app = document.getElementById('app');
+  if(app) app.innerHTML='<div style="padding:40px;text-align:center;color:#E53935;font-size:18px">加载出错: '+(e.message||'网络连接失败，请检查服务器是否已启动')+'</div>';
+});
+</script></body></html>

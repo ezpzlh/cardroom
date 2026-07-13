@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>棋牌室管理 - 玩家注册</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F5F5;color:#333;font-size:15px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:380px;max-width:90vw;background:#FFF;border-radius:16px;padding:40px 32px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+h1{text-align:center;font-size:24px;margin-bottom:8px;letter-spacing:2px}
+.sub{text-align:center;color:#999;font-size:13px;margin-bottom:28px}
+.inp{width:100%;height:44px;background:#F5F5F5;border:1px solid #E0E0E0;border-radius:8px;padding:0 14px;color:#333;font-size:15px;margin-bottom:14px}.inp:focus{border-color:#333;outline:none}
+.btn{width:100%;padding:14px;background:#333;color:#FFF;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
+.msg{color:#E53935;font-size:13px;text-align:center;min-height:20px;margin-bottom:4px}
+.link{text-align:center;margin-top:18px;font-size:13px;color:#999}.link a{color:#333;font-weight:600;text-decoration:none}
+</style></head><body>
+<div class="card">
+<h1>🀄 玩家注册</h1>
+<p class="sub">注册后等待管理员分配牌桌</p>
+<div class="msg" id="msg"></div>
+<input class="inp" id="username" placeholder="设置用户名" autofocus>
+<input class="inp" id="password" type="password" placeholder="设置密码（至少4位）">
+<input class="inp" id="phone" placeholder="手机号（可选）">
+<button class="btn" onclick="register()">注 册</button>
+<p class="link">已有账号？<a href="/login.html">返回登录</a></p>
+</div>
+<script>
+var API = '';
+function register(){
+  var phone=document.getElementById('phone').value.trim();
+  var uname=document.getElementById('username').value.trim();
+  var pwd=document.getElementById('password').value;
+  var msg=document.getElementById('msg');
+  if(!uname){msg.textContent='请设置用户名';return}
+  if(!pwd||pwd.length<4){msg.textContent='密码至少4位';return}
+  msg.textContent='';
+  fetch(API+'/api/auth/register',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:uname,password:pwd,phone:phone})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){msg.textContent=d.error;return}
+    msg.style.color='#2E7D32';
+    msg.textContent='注册成功！3秒后跳转登录页...';
+    setTimeout(function(){window.location.href='/login.html'},3000);
+  }).catch(function(e){msg.textContent='网络错误，请重试'});
+}
+</script>
+</body></html>

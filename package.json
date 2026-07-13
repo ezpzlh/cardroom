@@ -1,0 +1,28 @@
+{
+  "name": "cardroom",
+  "version": "1.0.0",
+  "description": "棋牌室管理 - 全栈应用",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezpzlh/cardroom.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ezpzlh/cardroom/issues"
+  },
+  "homepage": "https://github.com/ezpzlh/cardroom#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.11.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

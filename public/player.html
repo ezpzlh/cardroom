@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="zh"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>棋牌室 · 玩家中心</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F5F5;color:#333;font-size:15px;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#FFF}
+.header{background:#333;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.header .inf{display:flex;align-items:center;gap:10px}
+.header .dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFF;font-size:18px;font-weight:700}
+.header .nm{color:#FFF;font-size:16px;font-weight:600}
+.header .logout{color:#FFCDD2;font-size:12px;cursor:pointer;text-decoration:underline}
+.tabs{display:flex;background:#FFF;position:sticky;top:0;z-index:10;border-bottom:1px solid #EEE}
+.tab{flex:1;text-align:center;padding:14px 8px;font-size:14px;color:#999;cursor:pointer}.tab.on{color:#333;font-weight:700;border-bottom:2px solid #333;margin-bottom:-1px}
+.content{flex:1;padding:16px;overflow-y:auto;padding-bottom:80px}
+
+/* 今日牌局 */
+.today-empty{text-align:center;padding:50px 20px;color:#999}
+.today-empty .icon{font-size:48px;margin-bottom:12px}
+.today-empty .txt{font-size:14px;line-height:1.8}
+.tc{background:#FFF;border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #43A047}
+.tc-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tc-hd .tr{font-size:16px;font-weight:700}.tc-hd .tg{font-size:12px;padding:3px 10px;border-radius:10px;background:#333;color:#FFF}
+.tc-ps{display:flex;flex-wrap:wrap;gap:8px}
+.tc-ps .tp{padding:8px 14px;border-radius:20px;background:#F5F5F5;display:inline-flex;align-items:center;gap:6px;font-size:14px}
+.tc-ps .tp.me{background:#333;color:#FFF}
+.tdot{width:10px;height:10px;border-radius:50%}
+
+/* 对战记录 */
+.mb{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:18px;font-size:18px;font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:16px}
+.ch{font-size:12px;color:#999;padding:10px 0;font-weight:600}
+.cd{padding:14px 2px;border-radius:8px;background:#FAFAFA;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid transparent}.cd.emp{background:transparent}
+.cd.played{background:#333}.cd.played .d{color:#FFF;font-size:14px;font-weight:600}.cd.sel{border-color:#FFB300;box-shadow:0 0 0 2px #FFB300}
+.cd .d{font-size:14px;font-weight:600}
+.detail{background:#FFF;border-radius:12px;padding:18px;margin-top:8px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.detail .dh{font-size:16px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #EEE}
+.detail .game{padding:12px 14px;background:#FAFAFA;border-radius:8px;margin-bottom:8px}
+.detail .game .gtr{font-size:13px;color:#999;margin-bottom:4px}
+.detail .game .gps{display:flex;flex-wrap:wrap;gap:6px}
+.detail .game .gtp{padding:4px 10px;border-radius:12px;background:#FFF;font-size:13px;display:inline-flex;align-items:center;gap:4px}
+.no-detail{text-align:center;padding:24px;color:#999;font-size:14px}
+
+/* 我的账户 */
+.profile-section{background:#FFF;border-radius:12px;padding:20px;margin-bottom:12px;border:1px solid #EEE;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.profile-section .ps-hd{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.profile-section .ps-hd .edit-link{font-size:13px;color:#333;text-decoration:underline;cursor:pointer;font-weight:400;margin-left:auto}
+.info-row{display:flex;padding:10px 0;border-bottom:1px solid #F5F5F5;font-size:14px}
+.info-row .lbl{color:#999;min-width:60px}.info-row .val{color:#333;font-weight:500}
+.info-row:last-child{border-bottom:none}
+
+/* 编辑弹窗 */
+.mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100}
+.modal{position:fixed;top:10%;left:20px;right:20px;background:#FFF;border-radius:16px;padding:28px;z-index:101;max-height:80vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.mt{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px}
+.inp{width:100%;height:44px;background:#F5F5F5;border:1px solid #E0E0E0;border-radius:8px;padding:0 14px;color:#333;font-size:15px;margin-bottom:14px}.inp:focus{border-color:#333;outline:none}
+.btns{display:flex;gap:10px;margin-top:18px}.btns button{flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none}
+.btn-save{background:#333;color:#FFF}.btn-cancel{background:#F5F5F5;color:#666}
+.msg{color:#E53935;font-size:13px;text-align:center;min-height:20px;margin-bottom:8px}.msg.ok{color:#2E7D32}
+
+.stats{display:flex;gap:12px;margin-bottom:16px}
+.stat{flex:1;background:#FAFAFA;border-radius:10px;padding:16px;text-align:center}
+.stat .num{font-size:24px;font-weight:700;color:#333}.stat .lbl{font-size:12px;color:#999;margin-top:4px}
+</style></head><body><div class="app" id="app"></div>
+<script>
+var token=null,currentUser=null,tab="today";
+var todayTables=[],historyDates=[],historyYear,historyMonth,selectedDay=null,dayGames=[];
+var showEdit=false,showExAdd=false,exTempSel={};
+var otherPlayers=[],myExclusions=[];
+
+function getToken(){
+  if(token)return token;
+  token=localStorage.getItem('token');
+  var u=localStorage.getItem('user');
+  if(u)currentUser=JSON.parse(u);
+  return token;
+}
+function api(path,opts){
+  opts=opts||{};
+  var h=opts.headers||{};
+  h['Authorization']='Bearer '+getToken();
+  return fetch(path,{method:opts.method||'GET',headers:h,body:opts.body}).then(function(r){
+    if(r.status===401){localStorage.clear();window.location.href='/login.html';throw new Error('unauthorized')}
+    return r.json().catch(function(){throw new Error('响应解析失败')});
+  }).catch(function(e){
+    if(e.message==='unauthorized')throw e;
+    console.error('API error:',path,e.message);
+    throw e;
+  });
+}
+function logout(){localStorage.clear();window.location.href='/login.html'}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+
+async function init(){
+  var t=getToken();
+  if(!t){window.location.href='/login.html';return}
+  try{
+    var me=await api('/api/auth/me');
+    if(me.user){currentUser=me.user;localStorage.setItem('user',JSON.stringify(me.user))}
+  }catch(e){}
+  if(!currentUser){window.location.href='/login.html';return}
+  var d=new Date();
+  historyYear=d.getFullYear();historyMonth=d.getMonth()+1;
+  await loadToday();
+  await loadHistory();
+  await loadExclusions();
+  await loadOthers();
+  render();
+}
+
+async function loadToday(){
+  try{var r=await api('/api/player/tables?date='+today());todayTables=r.tables||[]}catch(e){todayTables=[]}
+}
+async function loadHistory(){
+  try{var r=await api('/api/player/history?year='+historyYear+'&month='+historyMonth);historyDates=r.dates||[]}catch(e){historyDates=[]}
+}
+async function loadOthers(){
+  try{var r=await api('/api/player/others');otherPlayers=r.players||[]}catch(e){otherPlayers=[]}
+}
+async function loadExclusions(){
+  try{var r=await api('/api/player/exclusions');myExclusions=r.exclusions||[]}catch(e){myExclusions=[]}
+}
+
+function render(){
+  var u=currentUser||{};
+  var initial=u.name?u.name.charAt(0):'?';
+  var h='<div class="header"><div class="inf"><div class="dot" style="background:'+(u.color||'#888')+'">'+initial+'</div><span class="nm">'+u.name+'</span></div><span class="logout" onclick="logout()">退出</span></div>';
+  h+='<div class="tabs">';
+  h+='<div class="tab '+(tab==="today"?"on":"")+'" data-tab="today">今日牌局</div>';
+  h+='<div class="tab '+(tab==="history"?"on":"")+'" data-tab="history">对战记录</div>';
+  h+='<div class="tab '+(tab==="profile"?"on":"")+'" data-tab="profile">我的账户</div>';
+  h+='</div><div class="content">';
+  if(tab==="today")h+=renderToday();
+  else if(tab==="history")h+=renderHistory();
+  else h+=renderProfile();
+  h+='</div>';
+  if(showEdit)h+=renderEditModal();
+  document.getElementById("app").innerHTML=h;
+  var els=document.querySelectorAll(".tab");
+  for(var i=0;i<els.length;i++){(function(t){els[i].addEventListener("click",function(){switchTab(t)})})(els[i].dataset.tab)}
+}
+
+async function switchTab(t){
+  tab=t;
+  if(t==="today")await loadToday();
+  if(t==="history")await loadHistory();
+  render();
+}
+
+// -------- 今日牌局 --------
+function renderToday(){
+  var h='<div style="font-size:17px;font-weight:700;margin-bottom:8px">📅 '+today()+'</div>';
+  if(!todayTables.length){
+    h+='<div class="today-empty"><div class="icon">🀄</div><div class="txt">今日暂无牌局<br>等待管理员分桌</div></div>';
+  }else{
+    todayTables.forEach(function(t){
+      h+='<div class="tc"><div class="tc-hd"><span class="tr">'+t.time_range+'</span><span class="tg">'+(t.tag||'未标')+'</span></div><div class="tc-ps">';
+      t.players.forEach(function(p){
+        h+='<div class="tp'+(p.id===currentUser.id?' me':'')+'"><span class="tdot" style="background:'+(p.color||'#888')+'"></span>'+p.name+(p.id===currentUser.id?' (我)':'')+'</div>';
+      });
+      h+='</div></div>';
+    });
+  }
+  return h;
+}
+
+// -------- 对战记录 --------
+function prevMonth(){if(historyMonth===1){historyMonth=12;historyYear--}else historyMonth--;selectedDay=null;dayGames=[];loadHistory().then(function(){render()})}
+function nextMonth(){if(historyMonth===12){historyMonth=1;historyYear++}else historyMonth++;selectedDay=null;dayGames=[];loadHistory().then(function(){render()})}
+async function selDay(ds){
+  if(selectedDay===ds){selectedDay=null;dayGames=[];render();return}
+  selectedDay=ds;
+  try{var r=await api('/api/player/tables?date='+ds);dayGames=r.tables||[]}catch(e){dayGames=[]}
+  render();
+}
+function renderHistory(){
+  var playedSet={};
+  historyDates.forEach(function(d){playedSet[d]=true});
+  var dim=new Date(historyYear,historyMonth,0).getDate(),fd=new Date(historyYear,historyMonth-1,1).getDay();
+  var h='<div class="mb"><span onclick="prevMonth()" style="cursor:pointer">◀</span><span>'+historyYear+'年'+historyMonth+'月</span><span onclick="nextMonth()" style="cursor:pointer">▶</span></div><div class="cal">';
+  "日一二三四五六".split("").forEach(function(d){h+='<div class="ch">'+d+"</div>"});
+  for(var i=0;i<fd;i++)h+='<div class="cd emp"></div>';
+  for(var d=1;d<=dim;d++){var ds=historyYear+"-"+String(historyMonth).padStart(2,"0")+"-"+String(d).padStart(2,"0");var played=playedSet[ds];h+='<div class="cd '+(played?"played":"")+" "+(selectedDay===ds?"sel":"")+'" onclick="selDay(\''+ds+'\')"><span class="d">'+d+'</span></div>'}
+  h+="</div>";
+  // Stats
+  h+='<div class="stats"><div class="stat"><div class="num">'+historyDates.length+'</div><div class="lbl">本月打牌天数</div></div></div>';
+  // Selected day detail
+  if(selectedDay){
+    h+='<div class="detail"><div class="dh">'+selectedDay+'</div>';
+    if(dayGames.length){
+      dayGames.forEach(function(g){
+        h+='<div class="game"><div class="gtr">'+g.time_range+' · '+(g.tag||'未标')+'</div><div class="gps">';
+        g.players.forEach(function(p){
+          h+='<div class="gtp"><span class="tdot" style="background:'+(p.color||'#888')+'"></span>'+p.name+(p.id===currentUser.id?' (我)':'')+'</div>';
+        });
+        h+='</div></div>';
+      });
+    }else{h+='<div class="no-detail">当天无牌局记录</div>'}
+    h+='</div>';
+  }
+  return h;
+}
+
+// -------- 我的账户 --------
+function renderProfile(){
+  var u=currentUser||{};
+  var h='<div class="profile-section"><div class="ps-hd"><span>📋 基本信息</span><span class="edit-link" onclick="showEdit=true;render()">编辑</span></div>';
+  h+='<div class="info-row"><span class="lbl">手机号</span><span class="val">'+(u.phone||'未填写')+'</span></div>';
+  h+='<div class="info-row"><span class="lbl">用户名</span><span class="val">'+u.username+'</span></div>';
+  h+='<div class="info-row"><span class="lbl">角色</span><span class="val">'+(u.role==='admin'?'管理员':'玩家')+'</span></div>';
+  // Exclusion info (read-only, managed in edit modal)
+  var exNames=[];
+  myExclusions.forEach(function(eid){var p=otherPlayers.find(function(x){return x.id===eid});if(p)exNames.push(p.name)});
+  h+='<div class="info-row"><span class="lbl">不跟谁玩</span><span class="val">'+(exNames.length?exNames.join('、'):'未设置')+'</span></div>';
+  h+='</div>';
+
+  h+='<div class="profile-section"><div class="ps-hd">📊 我的数据</div>';
+  h+='<div class="stats"><div class="stat"><div class="num">'+todayTables.length+'</div><div class="lbl">今日牌局</div></div><div class="stat"><div class="num">'+historyDates.length+'</div><div class="lbl">本月打牌数</div></div></div>';
+  h+='</div>';
+  return h;
+}
+
+function renderEditModal(){
+  var u=currentUser||{};
+  var h='<div class="mask" onclick="showEdit=false;showExAdd=false;render()"></div><div class="modal"><div class="mt">编辑个人资料</div>'+
+    '<div class="msg" id="msg"></div>'+
+    '<input class="inp" id="eName" placeholder="姓名" value="'+u.name+'">'+
+    '<input class="inp" id="ePhone" placeholder="手机号" value="'+(u.phone||'')+'">'+
+    '<input class="inp" id="ePwd" type="password" placeholder="新密码（不修改则留空）">'+
+    '<div class="lb">不愿同桌的玩家</div>'+
+    '<div class="chips">';
+  // Show current exclusions with red x
+  myExclusions.forEach(function(eid){
+    var p=otherPlayers.find(function(x){return x.id===eid});
+    var nm=p?p.name:eid;
+    h+='<span class="chip on">'+nm+'<span style="color:#E53935;margin-left:6px;cursor:pointer;font-weight:700" onclick="event.stopPropagation();removeExPick(\''+eid+'\')">✕</span></span>';
+  });
+  if(!myExclusions.length)h+='<span style="color:#999;font-size:13px">未设置</span>';
+  h+='</div>';
+  // Add button or picker
+  if(showExAdd){
+    // Picker mode - show available players to add
+    var avail=otherPlayers.filter(function(p){return myExclusions.indexOf(p.id)<0});
+    h+='<div style="max-height:180px;overflow-y:auto;background:#FAFAFA;border-radius:8px;padding:4px;margin-top:8px">';
+    if(!avail.length)h+='<div style="text-align:center;padding:14px;color:#999;font-size:13px">没有可添加的玩家</div>';
+    avail.forEach(function(p){
+      h+='<div class="sr-item" onclick="toggleExTempSel(\''+p.id+'\')" style="'+(exTempSel[p.id]?'background:#FFF4E5':'')+'"><span class="tdot" style="background:'+(p.color||'#888')+'"></span>'+p.name+(exTempSel[p.id]?'<span style="color:#E53935;margin-left:auto;font-weight:600">✓</span>':'')+'</div>';
+    });
+    h+='</div>';
+    h+='<button class="btn-add-ex" style="margin-top:8px;background:#333;color:#FFF;border:none;padding:12px;border-radius:10px;width:100%;font-size:14px;font-weight:600;cursor:pointer" onclick="confirmExAdd()">确认添加</button>';
+  } else {
+    h+='<div class="btn-add-ex" onclick="openExAdd()">＋ 添加玩家</div>';
+  }
+  h+='<div class="btns"><button class="btn-cancel" onclick="showEdit=false;showExAdd=false;render()">取消</button><button class="btn-save" onclick="saveProfile()">保存</button></div></div>';
+  return h;
+}
+
+function openExAdd(){showExAdd=true;exTempSel={};render()}
+function toggleExTempSel(id){if(exTempSel[id])delete exTempSel[id];else exTempSel[id]=true;render()}
+function confirmExAdd(){
+  Object.keys(exTempSel).forEach(function(id){
+    if(myExclusions.indexOf(id)<0)myExclusions.push(id);
+  });
+  showExAdd=false;exTempSel={};render();
+}
+function removeExPick(eid){
+  myExclusions=myExclusions.filter(function(e){return e!==eid});
+  render();
+}
+
+async function saveProfile(){
+  var name=document.getElementById('eName').value.trim();
+  var phone=document.getElementById('ePhone').value.trim();
+  var pwd=document.getElementById('ePwd').value;
+  var msg=document.getElementById('msg');
+  if(!name){msg.textContent='姓名不能为空';return}
+  var body={name:name,phone:phone};
+  if(pwd){if(pwd.length<4){msg.textContent='密码至少4位';return}body.password=pwd}
+  try{
+    var r1=await api('/api/auth/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r1.success){currentUser=r1.user;localStorage.setItem('user',JSON.stringify(r1.user))}
+    else{msg.textContent=r1.error||'保存失败';return}
+    // Also save exclusions
+    var r2=await api('/api/player/exclusions',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({exclusions:myExclusions})});
+    if(r2.success){myExclusions=r2.exclusions||[]}
+    showEdit=false;render();
+  }catch(e){msg.textContent='网络错误'}
+}
+
+// Init
+init().catch(function(e){
+  console.error('Init error:',e);
+  var app = document.getElementById('app');
+  if(app) app.innerHTML='<div style="padding:40px;text-align:center;color:#E53935;font-size:18px">加载出错: '+(e.message||'网络连接失败，请检查服务器是否已启动')+'</div>';
+});
+
+</script></body></html>
