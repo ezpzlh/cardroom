@@ -2,7 +2,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const DB_PATH = path.join(__dirname, 'data', 'cardroom.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'cardroom.db');
 
 // Ensure data directory exists
 const fs = require('fs');
